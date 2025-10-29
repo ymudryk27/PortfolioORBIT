@@ -39,69 +39,84 @@ export default function About() {
         development.
       </motion.p>
       {/* Scrolling photo strip */}
-      <div className="fixed bottom-0 left-0 w-full overflow-hidden bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent py-3 backdrop-blur-sm z-40">
-        <div className="marquee">
-          <div className="marquee__track flex items-center gap-6">
-            {(() => {
-              const techs = [
-                "python",
-                "flask",
-                "fastapi",
-                "keras",
-                "numpy",
-                "pandas",
-                "postgresql",
-                "tensorflow",
-                "tailwind",
-                "github",
-                "vscode",
-              ];
-              return (
-                <>
-                  {techs.map((name, i) => (
-                    <img
-                      key={name + i}
-                      src={`/tech/${name}.svg`}
-                      alt={name}
-                      className="h-16 w-auto rounded-md opacity-90 hover:opacity-100 transition duration-300"
-                      loading="lazy"
-                      data-fallback="svg"
-                      onError={(e) => {
-                        const el = e.currentTarget as HTMLImageElement;
-                        if (el.dataset.fallback === "svg") {
-                          el.src = `/tech/${name}.png`;
-                          el.dataset.fallback = "png";
-                        } else {
-                          el.src = "/next.svg";
-                        }
-                      }}
-                    />
-                  ))}
-                  {techs.map((name, i) => (
-                    <img
-                      key={`dup-${name}-${i}`}
-                      src={`/tech/${name}.svg`}
-                      alt={name}
-                      className="h-16 w-auto rounded-md opacity-90 hover:opacity-100 transition duration-300"
-                      loading="lazy"
-                      data-fallback="svg"
-                      onError={(e) => {
-                        const el = e.currentTarget as HTMLImageElement;
-                        if (el.dataset.fallback === "svg") {
-                          el.src = `/tech/${name}.png`;
-                          el.dataset.fallback = "png";
-                        } else {
-                          el.src = "/next.svg";
-                        }
-                      }}
-                    />
-                  ))}
-                </>
-              );
-            })()}
+      <div className="fixed bottom-0 left-0 w-full z-40">
+        <div className="relative overflow-hidden py-3">
+          {/* subtle gray/white gradient stripe behind icons */}
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.06),rgba(255,255,255,0.12),rgba(255,255,255,0.06))]" />
+
+          <div className="marquee">
+            <div className="marquee__track">
+              {(() => {
+                const techs = [
+                  "python",
+                  "flask",
+                  "fastapi",
+                  "keras",
+                  "numpy",
+                  "pandas",
+                  "postgresql",
+                  "tensorflow",
+                  "tailwind",
+                  "github",
+                  "vscode",
+                ];
+                // render 3 copies to guarantee seamless loop on wide screens
+                return Array.from({ length: 3 }).map((_, copyIdx) => (
+                  <div className="marquee__group" key={`group-${copyIdx}`}>
+                    {techs.map((name, i) => (
+                      <img
+                        key={`${copyIdx}-${name}-${i}`}
+                        src={`/tech/${name}.svg`}
+                        alt={name}
+                        className="h-16 w-auto shrink-0 rounded-md opacity-90 hover:opacity-100 transition duration-300"
+                        loading="lazy"
+                        data-fallback="svg"
+                        onError={(e) => {
+                          const el = e.currentTarget as HTMLImageElement;
+                          if (el.dataset.fallback === "svg") {
+                            el.src = `/tech/${name}.png`;
+                            el.dataset.fallback = "png";
+                          } else {
+                            el.src = "/next.svg";
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                ));
+              })()}
+            </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .marquee {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+        }
+        .marquee__track {
+          display: flex;
+          width: max-content;
+          will-change: transform;
+          animation: marquee 28s linear infinite;
+        }
+        .marquee__group {
+          display: inline-flex;
+          align-items: center;
+          gap: 1.5rem;
+          padding: 0 1.5rem;
+        }
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-33.3333%);
+          }
+        }
+      `}</style>
     </main>
   );
 }
