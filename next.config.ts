@@ -1,15 +1,17 @@
 import type { NextConfig } from "next";
 
 const isProd = process.env.NODE_ENV === "production";
-const basePath = isProd ? "/PortfolioORBIT" : "";
 
 const nextConfig: NextConfig = {
-  output: "export", // <-- ось це нове правило
-  basePath,
-  assetPrefix: basePath ? `${basePath}/` : undefined,
-  images: { unoptimized: true },
+  output: "export",
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+  basePath: isProd ? "/PortfolioORBIT" : "",
+  assetPrefix: isProd ? "/PortfolioORBIT/" : "",
   env: {
-    NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_BASE_PATH: isProd ? "/PortfolioORBIT" : "",
   },
 };
 

@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-
+const prefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export default function About() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center text-center bg-zinc-950 text-zinc-100">
@@ -66,7 +66,7 @@ export default function About() {
                     {techs.map((name, i) => (
                       <img
                         key={`${copyIdx}-${name}-${i}`}
-                        src={`/tech/${name}.svg`}
+                        src={`${prefix}/tech/${name}.svg`}
                         alt={name}
                         className="h-16 w-auto shrink-0 rounded-md opacity-90 hover:opacity-100 transition duration-300"
                         loading="lazy"
@@ -74,10 +74,10 @@ export default function About() {
                         onError={(e) => {
                           const el = e.currentTarget as HTMLImageElement;
                           if (el.dataset.fallback === "svg") {
-                            el.src = `/tech/${name}.png`;
+                            el.src = `${prefix}/tech/${name}.png`;
                             el.dataset.fallback = "png";
                           } else {
-                            el.src = "/next.svg";
+                            el.src = `${prefix}/next.svg`;
                           }
                         }}
                       />
