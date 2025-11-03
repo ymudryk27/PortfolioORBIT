@@ -3,9 +3,26 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const prefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 export default function About() {
   const router = useRouter();
   const [leaving, setLeaving] = useState(false);
+
+  const icons = [
+    "python",
+    "flask",
+    "fastapi",
+    "keras",
+    "numpy",
+    "pandas",
+    "tailwind",
+    "github",
+    "vscode",
+    "postgresql",
+    "tensorflow",
+  ];
+  const marqueeIcons = [...icons, ...icons, ...icons, ...icons];
 
   const handleBack = () => {
     if (leaving) return;
@@ -17,7 +34,7 @@ export default function About() {
 
   return (
     <motion.main
-      className="min-h-screen flex flex-col items-center justify-center text-center bg-zinc-950 text-zinc-100"
+      className="min-h-screen flex flex-col items-center justify-center text-center bg-zinc-950 text-zinc-100 pb-48"
       initial={{ opacity: 0, y: 16, scale: 0.98 }}
       animate={
         leaving
@@ -48,9 +65,9 @@ export default function About() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent"
+        className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
       >
-        About Me
+        Projects
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 20 }}
@@ -58,8 +75,8 @@ export default function About() {
         transition={{ delay: 0.3, duration: 0.8 }}
         className="text-zinc-400 max-w-xl"
       >
-        Hi! I’m Yaroslav Mudryk, a computer science student at Vistula
-        University in Warsaw, passionate about Python, AI, and creative web
+        This section presents a selection of my academic and personal projects
+        that combine artificial intelligence, data processing, and web
         development.
       </motion.p>
       <motion.p
@@ -68,10 +85,15 @@ export default function About() {
         transition={{ delay: 0.4, duration: 0.8 }}
         className="text-zinc-400 max-w-xl mt-6"
       >
-        Here you’ll find all my key projects — from Flask apps to AI tools and
-        web animations.
+        Each project was designed to explore practical applications of Python,
+        machine learning frameworks, and modern web technologies such as Flask,
+        FastAPI, and Tailwind CSS.
+        <br />
+        Together, they demonstrate my interest in connecting scientific methods
+        with creative coding to develop intelligent, efficient, and
+        user-friendly digital tools.
       </motion.p>
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6 max-w-6xl">
+      <div className="mt-12 mb-32 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6 max-w-6xl">
         {/* ClientBook Project */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -180,6 +202,58 @@ export default function About() {
           </a>
         </motion.div>
       </div>
+      {/* Scrolling Tech Icons Strip — seamless, single-track (true infinite) */}
+      <div className="pointer-events-none fixed bottom-0 left-0 z-40 w-full h-16 bg-gradient-to-r from-zinc-800/90 via-zinc-700/80 to-zinc-800/90 py-1.5 backdrop-blur-md">
+        <div
+          className="relative h-full overflow-hidden"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+            maskImage:
+              "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+          }}
+        >
+          {/* Single extra-wide track duplicated inline to avoid any visible jump */}
+          <div className="marquee-track absolute left-0 top-1/2 -translate-y-1/2 inline-flex items-center gap-6 px-6 whitespace-nowrap will-change-transform">
+            {marqueeIcons.map((tech, i) => (
+              <img
+                key={`m-a-${i}`}
+                src={`${prefix}/tech/${tech}.svg`}
+                alt={tech}
+                className="h-12 w-auto opacity-95 mx-2"
+              />
+            ))}
+            {marqueeIcons.map((tech, i) => (
+              <img
+                key={`m-b-${i}`}
+                src={`${prefix}/tech/${tech}.svg`}
+                alt={`${tech}-dup`}
+                className="h-12 w-auto opacity-95 mx-2"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Local styles for the marquee to ensure a truly seamless loop */}
+      <style jsx global>{`
+        @keyframes neo-marquee {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+        .marquee-track {
+          /* The track contains two identical halves; moving by -50% creates a perfect loop */
+          animation: neo-marquee 40s linear infinite;
+        }
+        /* Pause on hover (optional, feels nicer on desktop) */
+        .marquee-track:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </motion.main>
   );
 }
