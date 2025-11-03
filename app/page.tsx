@@ -76,6 +76,7 @@ type Lang = keyof typeof DICT;
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("en");
+  const [guideOpen, setGuideOpen] = useState(false);
 
   const FLAG: Record<Lang, string> = { en: "🇬🇧", ua: "🇺🇦", pl: "🇵🇱" };
 
@@ -153,13 +154,13 @@ export default function Home() {
   return (
     <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
       {/* Language Switcher */}
-      <div className="fixed right-6 top-6 z-50">
-        <div className="flex items-center gap-1 rounded-full border border-zinc-700/60 bg-zinc-900/70 px-2 py-1 backdrop-blur shadow-[0_0_16px_rgba(56,189,248,0.15)]">
+      <div className="fixed right-3 sm:right-6 top-[calc(env(safe-area-inset-top)+6px)] sm:top-6 z-50">
+        <div className="flex items-center gap-1 rounded-full border border-zinc-700/60 bg-zinc-900/70 px-1.5 py-1 sm:px-2 backdrop-blur shadow-[0_0_16px_rgba(56,189,248,0.15)]">
           {(["en", "ua", "pl"] as Lang[]).map((code) => (
             <button
               key={code}
               onClick={() => setLang(code)}
-              className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-blue-400/40 ${
+              className={`flex items-center gap-1 text-xs px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-blue-400/40 ${
                 lang === code
                   ? "bg-blue-500/30 text-blue-100"
                   : "text-zinc-300 hover:text-white hover:bg-white/5"
@@ -167,12 +168,24 @@ export default function Home() {
               aria-label={`Switch language to ${code.toUpperCase()}`}
               title={code.toUpperCase()}
             >
-              <span className="text-base leading-none">{FLAG[code]}</span>
+              <span className="text-[16px] sm:text-base leading-none">
+                {FLAG[code]}
+              </span>
               <span className="hidden sm:inline">{code.toUpperCase()}</span>
             </button>
           ))}
         </div>
       </div>
+      {/* Info toggle — mobile only */}
+      <button
+        className="fixed left-3 top-[calc(env(safe-area-inset-top)+6px)] z-50 lg:hidden h-8 w-8 rounded-full bg-zinc-900/70 border border-zinc-700/60 backdrop-blur shadow-[0_0_12px_rgba(56,189,248,0.2)] text-zinc-200"
+        aria-label="Toggle guide"
+        aria-expanded={guideOpen}
+        aria-controls="guide-panel"
+        onClick={() => setGuideOpen((v) => !v)}
+      >
+        i
+      </button>
       {/* Неоновий фон */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-transparent blur-3xl" />
 
@@ -184,11 +197,13 @@ export default function Home() {
         transition={{ duration: 0.25 }}
         className="relative z-10 text-center px-4"
       >
-        <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">
+        <h1 className="font-bold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent text-[clamp(28px,7vw,56px)]">
           {t.title}
         </h1>
-        <p className="mt-4 text-zinc-400 max-w-xl mx-auto">{t.subtitle}</p>
-        <p className="mt-2 text-sm text-zinc-500 italic">
+        <p className="mt-3 text-zinc-400 mx-auto max-w-xl text-[clamp(13px,3.6vw,18px)]">
+          {t.subtitle}
+        </p>
+        <p className="mt-2 text-zinc-500 italic hidden sm:block text-[clamp(11px,3vw,14px)]">
           {lang === "ua" &&
             "(P.S. Фото не стежить за вами — це просто рядок коду 😄)"}
           {lang === "en" &&
@@ -198,36 +213,67 @@ export default function Home() {
         </p>
       </motion.div>
 
-      {/* Пояснення планет */}
+      {/* Guide panel — mobile (toggle) */}
+      {guideOpen && (
+        <div
+          key={`guide-${lang}-mobile`}
+          className="lg:hidden fixed left-1/2 top-[calc(env(safe-area-inset-top)+48px)] -translate-x-1/2 z-40 w-[92vw] max-w-[360px] text-sm text-zinc-300 space-y-2 bg-zinc-900/70 backdrop-blur-sm rounded-lg p-4 border border-zinc-700/40 shadow-[0_0_20px_rgba(56,189,248,0.2)]"
+          id="guide-panel"
+          onClick={() => setGuideOpen(false)}
+        >
+          <h2 className="text-zinc-100 font-semibold text-base mb-2">
+            {t.guide.title}
+          </h2>
+          <ul className="space-y-1">
+            <li>
+              <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2" />
+              {t.guide.projects}
+            </li>
+            <li>
+              <span className="inline-block w-3 h-3 rounded-full bg-green-400 mr-2" />
+              {t.guide.about}
+            </li>
+            <li>
+              <span className="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2" />
+              {t.guide.contact}
+            </li>
+            <li>
+              <span className="inline-block w-3 h-3 rounded-full bg-pink-500 mr-2" />
+              {t.guide.resume}
+            </li>
+          </ul>
+        </div>
+      )}
+      {/* Guide panel — desktop (always visible) */}
       <div
-        key={`guide-${lang}`}
-        className="absolute top-8 left-8 z-20 text-sm text-zinc-300 space-y-2 bg-zinc-900/40 backdrop-blur-sm rounded-lg p-4 border border-zinc-700/40 shadow-[0_0_20px_rgba(56,189,248,0.2)]"
+        key={`guide-${lang}-desktop`}
+        className="hidden lg:block absolute top-8 left-8 z-20 text-sm text-zinc-300 space-y-2 bg-zinc-900/70 backdrop-blur-sm rounded-lg p-4 border border-zinc-700/40 shadow-[0_0_20px_rgba(56,189,248,0.2)]"
       >
         <h2 className="text-zinc-100 font-semibold text-base mb-2">
           {t.guide.title}
         </h2>
         <ul className="space-y-1">
           <li>
-            <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
-            <span className="text-zinc-300">{t.guide.projects}</span>
+            <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2" />
+            {t.guide.projects}
           </li>
           <li>
-            <span className="inline-block w-3 h-3 rounded-full bg-green-400 mr-2"></span>
-            <span className="text-zinc-300">{t.guide.about}</span>
+            <span className="inline-block w-3 h-3 rounded-full bg-green-400 mr-2" />
+            {t.guide.about}
           </li>
           <li>
-            <span className="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
-            <span className="text-zinc-300">{t.guide.contact}</span>
+            <span className="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2" />
+            {t.guide.contact}
           </li>
           <li>
-            <span className="inline-block w-3 h-3 rounded-full bg-pink-500 mr-2"></span>
-            <span className="text-zinc-300">{t.guide.resume}</span>
+            <span className="inline-block w-3 h-3 rounded-full bg-pink-500 mr-2" />
+            {t.guide.resume}
           </li>
         </ul>
       </div>
 
       {/* Сцена орбіти */}
-      <div className="relative z-10 mt-12 w-[360px] h-[360px] md:w-[440px] md:h-[440px]">
+      <div className="relative z-10 mt-8 sm:mt-12 w-[360px] h-[360px] md:w-[440px] md:h-[440px]">
         {/* Центральне фото */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <div className="avatar-wrapper relative z-20 w-32 h-32 md:w-40 md:h-40 rounded-full ring-4 ring-blue-500/30 shadow-[0_0_80px_rgba(56,189,248,0.25)] overflow-hidden bg-white">
