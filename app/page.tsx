@@ -6,14 +6,97 @@ import avatar from "@/public/avatar.png";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-const ITEMS = [
-  { label: "Projects", href: "/projects", angle: -10 },
-  { label: "About", href: "/about", angle: 80 },
-  { label: "Contact", href: "/contact", angle: 170 },
-  { label: "Resume", href: "/resume", angle: 260 },
+type NavKey = "projects" | "about" | "contact" | "resume";
+
+const BASE_ITEMS: { key: NavKey; href: string; angle: number }[] = [
+  { key: "projects", href: "/projects", angle: -10 },
+  { key: "about", href: "/about", angle: 80 },
+  { key: "contact", href: "/contact", angle: 170 },
+  { key: "resume", href: "/resume", angle: 260 },
 ];
 
+const DICT = {
+  en: {
+    title: "My Orbital Portfolio",
+    subtitle:
+      "An interactive space where my projects, skills, and ideas revolve around real‑world problems. Pick a planet to explore.",
+    nav: {
+      projects: "Projects",
+      about: "About",
+      contact: "Contact",
+      resume: "Resume",
+    },
+    guide: {
+      title: "Planet meanings",
+      projects: "Projects — main works",
+      about: "About — who I am",
+      contact: "Contact — get in touch",
+      resume: "Resume — experience & skills",
+    },
+  },
+  ua: {
+    title: "Моє орбітальне портфоліо",
+    subtitle:
+      "Інтерактивний простір, де мої проєкти, навички та ідеї обертаються навколо реальних задач. Оберіть планету, щоб дослідити.",
+    nav: {
+      projects: "Проєкти",
+      about: "Про мене",
+      contact: "Контакти",
+      resume: "Резюме",
+    },
+    guide: {
+      title: "Планети означають",
+      projects: "Проєкти — мої роботи",
+      about: "Про мене — хто я",
+      contact: "Контакти — зв’язатися",
+      resume: "Резюме — досвід і навички",
+    },
+  },
+  pl: {
+    title: "Moje orbitalne portfolio",
+    subtitle:
+      "Interaktywna przestrzeń, w której moje projekty, umiejętności i pomysły krążą wokół realnych wyzwań. Wybierz planetę, aby zwiedzić.",
+    nav: {
+      projects: "Projekty",
+      about: "O mnie",
+      contact: "Kontakt",
+      resume: "CV",
+    },
+    guide: {
+      title: "Co znaczą planety",
+      projects: "Projekty — moje prace",
+      about: "O mnie — kim jestem",
+      contact: "Kontakt — napisz do mnie",
+      resume: "CV — doświadczenie i umiejętności",
+    },
+  },
+} as const;
+
+type Lang = keyof typeof DICT;
+
 export default function Home() {
+  const [lang, setLang] = useState<Lang>("en");
+
+  const FLAG: Record<Lang, string> = { en: "🇬🇧", ua: "🇺🇦", pl: "🇵🇱" };
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("lang") as Lang | null;
+      if (saved && ["en", "ua", "pl"].includes(saved)) setLang(saved as Lang);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("lang", lang);
+    } catch {}
+  }, [lang]);
+
+  const t = DICT[lang];
+  const ITEMS = BASE_ITEMS.map((it) => ({
+    ...it,
+    label: t.nav[it.key],
+  }));
   const [particles, setParticles] = useState<
     { x: number; y: number; delay: number; duration: number }[]
   >([]);
@@ -69,18 +152,78 @@ export default function Home() {
 
   return (
     <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
+      {/* Language Switcher */}
+      <div className="fixed right-6 top-6 z-50">
+        <div className="flex items-center gap-1 rounded-full border border-zinc-700/60 bg-zinc-900/70 px-2 py-1 backdrop-blur shadow-[0_0_16px_rgba(56,189,248,0.15)]">
+          {(["en", "ua", "pl"] as Lang[]).map((code) => (
+            <button
+              key={code}
+              onClick={() => setLang(code)}
+              className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-blue-400/40 ${
+                lang === code
+                  ? "bg-blue-500/30 text-blue-100"
+                  : "text-zinc-300 hover:text-white hover:bg-white/5"
+              }`}
+              aria-label={`Switch language to ${code.toUpperCase()}`}
+              title={code.toUpperCase()}
+            >
+              <span className="text-base leading-none">{FLAG[code]}</span>
+              <span className="hidden sm:inline">{code.toUpperCase()}</span>
+            </button>
+          ))}
+        </div>
+      </div>
       {/* Неоновий фон */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-transparent blur-3xl" />
 
-      {/* Заголовок та опис */}
-      <div className="relative z-10 text-center px-4">
+      {/* Заголовок та опис (перемикається без накладання) */}
+      <motion.div
+        key={`hero-${lang}`}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25 }}
+        className="relative z-10 text-center px-4"
+      >
         <h1 className="text-5xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">
-          NeoOrbit Hub
+          {t.title}
         </h1>
-        <p className="mt-4 text-zinc-400 max-w-xl mx-auto">
-          Welcome to my interactive portfolio — a space where ideas orbit around
-          creativity and code. Explore projects, skills, and more.
+        <p className="mt-4 text-zinc-400 max-w-xl mx-auto">{t.subtitle}</p>
+        <p className="mt-2 text-sm text-zinc-500 italic">
+          {lang === "ua" &&
+            "(P.S. Фото не стежить за вами — це просто рядок коду 😄)"}
+          {lang === "en" &&
+            "(P.S. The photo isn’t watching you — it’s just a bit of code 😄)"}
+          {lang === "pl" &&
+            "(P.S. Zdjęcie nie śledzi Cię — to tylko kawałek kodu 😄)"}
         </p>
+      </motion.div>
+
+      {/* Пояснення планет */}
+      <div
+        key={`guide-${lang}`}
+        className="absolute top-8 left-8 z-20 text-sm text-zinc-300 space-y-2 bg-zinc-900/40 backdrop-blur-sm rounded-lg p-4 border border-zinc-700/40 shadow-[0_0_20px_rgba(56,189,248,0.2)]"
+      >
+        <h2 className="text-zinc-100 font-semibold text-base mb-2">
+          {t.guide.title}
+        </h2>
+        <ul className="space-y-1">
+          <li>
+            <span className="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+            <span className="text-zinc-300">{t.guide.projects}</span>
+          </li>
+          <li>
+            <span className="inline-block w-3 h-3 rounded-full bg-green-400 mr-2"></span>
+            <span className="text-zinc-300">{t.guide.about}</span>
+          </li>
+          <li>
+            <span className="inline-block w-3 h-3 rounded-full bg-yellow-400 mr-2"></span>
+            <span className="text-zinc-300">{t.guide.contact}</span>
+          </li>
+          <li>
+            <span className="inline-block w-3 h-3 rounded-full bg-pink-500 mr-2"></span>
+            <span className="text-zinc-300">{t.guide.resume}</span>
+          </li>
+        </ul>
       </div>
 
       {/* Сцена орбіти */}
