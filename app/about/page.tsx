@@ -1,8 +1,23 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+const DICT = {
+  en: {
+    title: "About Me",
+    text: "I’m Yaroslav Mudryk, a Computer Science student at Vistula University in Warsaw. I enjoy creating practical and creative web projects using Python and modern web technologies. My focus is on building solutions that make technology simple, useful, and accessible for everyone. I also worked remotely at GLP Software as an IT assistant: built small websites for schools using basic HTML, CSS, and JavaScript; created a commercial website for a Polish kickboxing champion; helped the team hunt bugs on internal projects; and designed a website for a commercial company. Through every project, I try to connect logic, design, and curiosity to keep learning and improving as a developer.",
+  },
+  ua: {
+    title: "Про мене",
+    text: "Я — Ярослав Мудрик, студент комп’ютерних наук у Віслінському університеті у Варшаві. Люблю створювати практичні та креативні веб‑проєкти з використанням Python і сучасних вебтехнологій. Зосереджуюся на тому, щоб робити технології простими, корисними та доступними для кожного. Працював дистанційно в GLP Software у ролі IT‑помічника: робив невеликі сайти для шкіл на базовому HTML, CSS і JavaScript; створив комерційний сайт для польського чемпіона з кікбоксингу; допомагав команді шукати баги в їхніх проєктах; розробляв дизайн сайту для комерційної компанії. У кожному проєкті намагаюся поєднувати логіку, дизайн і цікавість, щоб постійно вдосконалюватися як розробник.",
+  },
+  pl: {
+    title: "O mnie",
+    text: "Jestem Yaroslav Mudryk, studentem informatyki na Uniwersytecie Vistula w Warszawie. Lubię tworzyć praktyczne i kreatywne projekty webowe z użyciem Pythona i nowoczesnych technologii. Skupiam się na rozwiązaniach, które sprawiają, że technologia jest prosta, użyteczna i dostępna dla każdego. Pracowałem zdalnie w GLP Software jako asystent IT: tworzyłem proste strony dla szkół w podstawowym HTML, CSS i JavaScript; przygotowałem komercyjną stronę dla polskiego mistrza kickboxingu; pomagałem zespołowi w wyszukiwaniu błędów w projektach; projektowałem stronę dla firmy komercyjnej. W każdym projekcie staram się łączyć logikę, design i ciekawość, aby stale rozwijać się jako programista.",
+  },
+};
+type Lang = keyof typeof DICT;
 const prefix = process.env.NEXT_PUBLIC_BASE_PATH || "";
-// --- Editable photos list: put your filenames from /public/tech/ here ---
+
 const photos = ["avatar.png", "avatar2.png", "avatar3.png"];
 
 import { useEffect, useRef, useState } from "react";
@@ -201,6 +216,13 @@ function GalleryModal({
   );
 }
 export default function About() {
+  const [lang, setLang] = useState<Lang>("en");
+  useEffect(() => {
+    const saved = localStorage.getItem("lang");
+    if (saved && (saved === "en" || saved === "ua" || saved === "pl"))
+      setLang(saved as Lang);
+  }, []);
+  const t = DICT[lang];
   return (
     <main className="min-h-screen flex flex-col items-center justify-center text-center bg-zinc-950 text-zinc-100">
       <Link href="/" aria-label="Back to Orbit">
@@ -224,7 +246,7 @@ export default function About() {
         transition={{ duration: 0.8 }}
         className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent"
       >
-        About Me
+        {t.title}
       </motion.h1>
       {/* Avatar / Photos Slideshow with Click-to-Gallery */}
       <motion.div
@@ -241,13 +263,33 @@ export default function About() {
         transition={{ delay: 0.3, duration: 0.8 }}
         className="text-zinc-400 max-w-xl"
       >
-        I’m Yaroslav Mudryk, a Computer Science student at Vistula University in
-        Warsaw. I enjoy creating practical and creative web projects using
-        Python and modern web technologies. My focus is on building solutions
-        that make technology simple, useful, and accessible for everyone.
-        Through every project, I try to connect logic, design, and curiosity to
-        keep learning and improving as a developer.
+        {t.text}
       </motion.p>
+      <div className="fixed right-6 top-6 z-50">
+        <div className="flex items-center gap-1 rounded-full border border-zinc-700/60 bg-zinc-900/70 px-2 py-1 backdrop-blur shadow-[0_0_16px_rgba(56,189,248,0.15)]">
+          {(["en", "ua", "pl"] as Lang[]).map((code) => (
+            <button
+              key={code}
+              onClick={() => {
+                setLang(code);
+                localStorage.setItem("lang", code);
+              }}
+              className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-blue-400/40 ${
+                lang === code
+                  ? "bg-blue-500/30 text-blue-100"
+                  : "text-zinc-300 hover:text-white hover:bg-white/5"
+              }`}
+              aria-label={`Switch language to ${code.toUpperCase()}`}
+              title={code.toUpperCase()}
+            >
+              <span className="text-base leading-none">
+                {code === "en" ? "🇬🇧" : code === "ua" ? "🇺🇦" : "🇵🇱"}
+              </span>
+              <span className="hidden sm:inline">{code.toUpperCase()}</span>
+            </button>
+          ))}
+        </div>
+      </div>
     </main>
   );
 }

@@ -3,7 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import avatar from "@/public/avatar.png";
-import { motion } from "framer-motion";
+import {
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
 type NavKey = "projects" | "about" | "contact" | "resume";
@@ -110,6 +115,13 @@ export default function Home() {
     }));
     setParticles(arr);
   }, []);
+
+  const orbit = useMotionValue(0);
+  useAnimationFrame((t) => {
+    const deg = ((t % 38000) / 38000) * 360;
+    orbit.set(deg);
+  });
+  const counterOrbit = useTransform(orbit, (v) => -v);
 
   const leftEyeRef = useRef<HTMLDivElement | null>(null);
   const rightEyeRef = useRef<HTMLDivElement | null>(null);
@@ -327,11 +339,7 @@ export default function Home() {
         <div className="absolute inset-12 rounded-full border border-zinc-700/10" />
 
         {/* Обертання кнопок */}
-        <motion.div
-          className="absolute inset-0"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 38, ease: "linear", repeat: Infinity }}
-        >
+        <motion.div className="absolute inset-0" style={{ rotate: orbit }}>
           {ITEMS.map((item, i) => (
             <div
               key={item.label}
@@ -365,17 +373,13 @@ export default function Home() {
                     boxShadow: "0 0 40px rgba(255,255,255,0.6)",
                   }}
                   whileTap={{ scale: 0.95 }}
-                  animate={{ rotate: -360 }}
-                  transition={{
-                    duration: 38,
-                    ease: "linear",
-                    repeat: Infinity,
-                  }}
+                ></motion.div>
+                <motion.span
+                  className="pointer-events-none absolute left-1/2 top-12 -translate-x-1/2 text-xs text-zinc-300 opacity-0 group-hover:opacity-100 transition"
+                  style={{ rotate: counterOrbit }}
                 >
-                  <span className="pointer-events-none absolute left-1/2 top-12 -translate-x-1/2 text-xs text-zinc-300 opacity-0 group-hover:opacity-100 transition">
-                    {item.label}
-                  </span>
-                </motion.div>
+                  {item.label}
+                </motion.span>
               </Link>
             </div>
           ))}
