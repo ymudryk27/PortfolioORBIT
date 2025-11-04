@@ -232,13 +232,6 @@ export default function Resume() {
               >
                 {t.cvPl}
               </a>
-              <a
-                className="block rounded-full px-4 py-2 border border-blue-500/40 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20 transition"
-                href={`${prefix}/cv/Yaroslav_Mudryk_CV_UA.pdf`}
-                download
-              >
-                {t.cvUa}
-              </a>
             </div>
           </motion.div>
         </div>
